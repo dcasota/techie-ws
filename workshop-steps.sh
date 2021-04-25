@@ -2,8 +2,8 @@
 
 echo -n "Enter your Docker Hub username and press [ENTER]: "
 read DOCKER_USERNAME
-echo -n "Enter your Docker Hub password and press [ENTER]: "
-read DOCKER_PASSWORD
+
+read -s -p "Enter your Docker Hub password and press [ENTER]: " DOCKER_PASSWORD
 
 echo -n "Enter your Github Node https://github.com/yourname/node and press [ENTER]: "
 read GITHUB_NODE
