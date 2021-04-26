@@ -3,7 +3,9 @@
 echo -n "Enter your Docker Hub username and press [ENTER]: "
 read DOCKER_USERNAME
 
+echo -n ""
 read -s -p "Enter your Docker Hub password and press [ENTER]: " DOCKER_PASSWORD
+echo -n ""
 
 echo -n "Enter your Github Node https://github.com/yourname/node and press [ENTER]: "
 read GITHUB_NODE
@@ -12,9 +14,38 @@ echo -n "Enter your Github Petclinic fork https://github.com/yourname/spring-pet
 read GITHUB_PETCLINIC
 
 
+echo Installing NTP
 cd /root
+tdnf install -y ntp
+cat <<EOFntp> /etc/ntp.conf
+tinker panic 0
+restrict default kod nomodify notrap nopeer noquery
+restrict 127.0.0.1
+restrict -6 ::1
+driftfile /var/lib/ntp/drift/ntp.drift
 
-tdnf install -y curl tar kubernetes git openjdk11 conntrack jq kubernetes-kubeadm
+server ntp11.metas.ch
+server ntp12.metas.ch
+server ntp13.metas.ch
+EOFntp
+iptables -A INPUT -i eth0 -p udp --dport 123 -j ACCEPT
+iptables-save >/etc/systemd/scripts/ip4save
+ip6tables-save >/etc/systemd/scripts/ip6save
+systemctl enable ntpd
+systemctl start ntpd
+read -p "Press a key to continue."
+
+echo Installing Minikube
+cd /root
+tdnf install -y curl tar
+curl -J -O -L https://github.com/kubernetes/minikube/releases/download/v1.19.0/minikube-linux-amd64.tar.gz
+tar -xzvf ./minikube-linux-amd64.tar.gz
+cd ./out
+./minikube-linux-amd64  start --driver=none
+read -p "Press a key to continue."
+
+cd /root
+tdnf install -y kubernetes git openjdk11 conntrack jq
 
 iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 iptables -A OUTPUT -p tcp --dport 8080 -j ACCEPT
@@ -96,7 +127,7 @@ metadata:
   namespace: default
 spec:
   serviceAccount: dockerhub-service-account
-  tag: index.docker.io/<DOCKER_USERNAME>/ws-builder
+  tag: index.docker.io/$DOCKER_USERNAME/ws-builder
   stack:
     name: base
     kind: ClusterStack
