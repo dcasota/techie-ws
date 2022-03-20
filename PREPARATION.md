@@ -28,6 +28,10 @@ Verify that you have the following tools handy on your system:
 - git version: 2.29.2
 - jq version: jq-1.6
 
+20.03.2022:
+minikube on arm64:
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
+
 ### Setup the minikube cluster
 
 ```
